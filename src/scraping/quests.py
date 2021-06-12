@@ -1,18 +1,33 @@
-from . import EFT_WIKI_QUESTS_BASE_URL, TRADERS
+import os
+import yaml
+
+from . import EFT_WIKI_QUESTS_BASE_URL, OUT_DIR, TRADERS
 from dataclasses import dataclass
 from scraper import make_soup
+
+
+def process_all_quest_tables():
+    """ Handles scraping and exporting operations for all trader quests """
+    all_quests = scrape_all_quest_tables()
+
+    for trader, quests in all_quests.items():
+        export_quest_table(trader=trader, quests=quests)
 
 
 def scrape_all_quest_tables():
     """
     Calls functions to parse quest info from the respective trader's quest table
-    :return:
+
+    :return: collection of trader quests
     """
     soup = make_soup(EFT_WIKI_QUESTS_BASE_URL)
 
+    quests = {}
+
     for trader in TRADERS:
-        quests = scrape_quest_table(table=soup.find('table', class_=f'{trader}-content'))
-        print(f'Trader: {trader}, Quests: {quests}')
+        quests[trader] = scrape_quest_table(table=soup.find('table', class_=f'{trader}-content'))
+
+    return quests
 
 
 def scrape_quest_table(table):
@@ -51,6 +66,18 @@ def scrape_quest_table(table):
     return quests
 
 
+def export_quest_table(trader, quests):
+    """
+    Exports a trader's quests to a .yml file
+
+    :param trader: the trader for the quests
+    :param quests: the trader's quests
+    :return: None
+    """
+    with open(os.path.join(OUT_DIR, f'{trader}-quests.yml'), 'w') as out_file:
+        yaml.dump(quests, out_file, default_flow_style=False)
+
+
 @dataclass
 class Quest:
     """ Class to represent a quest in 'Escape from Tarkov' """
@@ -69,3 +96,13 @@ class Quest:
         self.rewards = rewards
         self.trader = trader
         self.type_ = type_
+
+    def __repr__(self):
+        return {
+            'meta': self.meta,
+            'name': self.name,
+            'objectives': self.objectives,
+            'rewards': self.rewards,
+            'trader': self.trader,
+            'type_': self.type_
+        }
