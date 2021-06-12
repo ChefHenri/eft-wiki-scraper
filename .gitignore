@@ -14,6 +14,7 @@
 .idea/**/contentModel.xml
 .idea/inspectionProfiles/
 .idea/**/vcs.xml
+/out
 
 # Sensitive or high-churn files
 .idea/**/dataSources/
