@@ -1,19 +1,14 @@
-# User-specific stuff
-.idea/**/workspace.xml
-.idea/**/tasks.xml
-.idea/**/usage.statistics.xml
-.idea/**/dictionaries
-.idea/**/shelf
-.idea/**/misc.xml
-.idea/**/modules.xml
-
-# Project-based format
-*.iml
+# Environment variables
+.env
 
 # Generated files
 .idea/**/contentModel.xml
 .idea/inspectionProfiles/
 .idea/**/vcs.xml
+/out
+
+# Project-based format
+*.iml
 
 # Sensitive or high-churn files
 .idea/**/dataSources/
@@ -23,6 +18,15 @@
 .idea/**/dynamic.xml
 .idea/**/uiDesigner.xml
 .idea/**/dbnavigator.xml
+
+# User-specific stuff
+.idea/**/workspace.xml
+.idea/**/tasks.xml
+.idea/**/usage.statistics.xml
+.idea/**/dictionaries
+.idea/**/shelf
+.idea/**/misc.xml
+.idea/**/modules.xml
 
 # Virtual env
 /venv/

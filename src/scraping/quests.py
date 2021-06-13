@@ -1,18 +1,33 @@
-from . import EFT_WIKI_QUESTS_BASE_URL, TRADERS
+import yaml
+
+from . import EFT_WIKI_QUESTS_BASE_URL, QUEST_OUT_DIR_ENV_KEY, TRADERS
 from dataclasses import dataclass
+from os import environ, path
 from scraper import make_soup
+
+
+def process_all_quest_tables():
+    """ Handles scraping and exporting operations for all trader quests """
+    all_quests = scrape_all_quest_tables()
+
+    for trader, quests in all_quests.items():
+        export_quest_table(trader=trader, quests=quests)
 
 
 def scrape_all_quest_tables():
     """
     Calls functions to parse quest info from the respective trader's quest table
-    :return:
+
+    :return: collection of trader quests
     """
     soup = make_soup(EFT_WIKI_QUESTS_BASE_URL)
 
+    quests = {}
+
     for trader in TRADERS:
-        quests = scrape_quest_table(table=soup.find('table', class_=f'{trader}-content'))
-        print(f'Trader: {trader}, Quests: {quests}')
+        quests[trader] = scrape_quest_table(table=soup.find('table', class_=f'{trader}-content'))
+
+    return quests
 
 
 def scrape_quest_table(table):
@@ -49,6 +64,18 @@ def scrape_quest_table(table):
                             trader='prapor', type_=quest_type))
 
     return quests
+
+
+def export_quest_table(trader, quests):
+    """
+    Exports a trader's quests to a .yml file
+
+    :param trader: the trader for the quests
+    :param quests: the trader's quests
+    :return: None
+    """
+    with open(path.join(environ.get(QUEST_OUT_DIR_ENV_KEY), f'{trader.lower()}-quests.yml'), 'w') as out_file:
+        yaml.dump(quests, out_file, default_flow_style=False)
 
 
 @dataclass
