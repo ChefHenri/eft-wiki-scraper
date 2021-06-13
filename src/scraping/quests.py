@@ -1,6 +1,6 @@
 import yaml
 
-from . import EFT_WIKI_QUESTS_BASE_URL, OUT_DIR_ENV_KEY, TRADERS
+from . import EFT_WIKI_QUESTS_BASE_URL, QUEST_OUT_DIR_ENV_KEY, TRADERS
 from dataclasses import dataclass
 from os import environ, path
 from scraper import make_soup
@@ -74,7 +74,7 @@ def export_quest_table(trader, quests):
     :param quests: the trader's quests
     :return: None
     """
-    with open(path.join(environ.get(OUT_DIR_ENV_KEY), f'{trader.lower()}-quests.yml'), 'w') as out_file:
+    with open(path.join(environ.get(QUEST_OUT_DIR_ENV_KEY), f'{trader.lower()}-quests.yml'), 'w') as out_file:
         yaml.dump(quests, out_file, default_flow_style=False)
 
 
@@ -96,13 +96,3 @@ class Quest:
         self.rewards = rewards
         self.trader = trader
         self.type_ = type_
-
-    def __repr__(self):
-        return {
-            'meta': self.meta,
-            'name': self.name,
-            'objectives': self.objectives,
-            'rewards': self.rewards,
-            'trader': self.trader,
-            'type_': self.type_
-        }
