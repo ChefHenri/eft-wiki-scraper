@@ -3,7 +3,7 @@ import yaml
 from . import EFT_WIKI_QUESTS_BASE_URL, QUEST_OUT_DIR_ENV_KEY, TRADERS
 from dataclasses import dataclass
 from os import environ, path
-from scraper import make_soup
+from scraping.scraper import make_soup
 
 
 def process_all_quest_tables():

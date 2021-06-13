@@ -4,7 +4,7 @@ import yaml
 from . import EFT_WIKI_WEAPONS_BASE_URL, WEAPONS_OUT_DIR_ENV_KEY
 from dataclasses import dataclass
 from os import environ, path
-from scraper import make_soup
+from scraping.scraper import make_soup
 
 
 def process_all_weapons_tables():
