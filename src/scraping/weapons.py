@@ -4,14 +4,21 @@ import yaml
 from . import EFT_WIKI_WEAPONS_BASE_URL, WEAPONS_OUT_DIR_ENV_KEY
 from dataclasses import dataclass
 from os import environ, path
-from scraper import make_soup
+from scraping.scraper import make_soup
 
 
-def process_all_weapons_tables():
+def process_all_weapons_tables(classes, export=False):
     """ Handles scraping and exporting operations for all weapons tables """
     all_weapons = scrape_all_weapon_tables()
+
     for class_, weapons in all_weapons.items():
-        export_weapons_table(class_, weapons)
+        if class_ in classes:
+            if export:
+                export_weapons_table(class_, weapons)
+            else:
+                print(weapons)
+        else:
+            continue
 
 
 def scrape_all_weapon_tables():

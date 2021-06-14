@@ -3,15 +3,21 @@ import yaml
 from . import EFT_WIKI_QUESTS_BASE_URL, QUEST_OUT_DIR_ENV_KEY, TRADERS
 from dataclasses import dataclass
 from os import environ, path
-from scraper import make_soup
+from scraping.scraper import make_soup
 
 
-def process_all_quest_tables():
+def process_all_quest_tables(traders, export=False):
     """ Handles scraping and exporting operations for all trader quests """
     all_quests = scrape_all_quest_tables()
 
     for trader, quests in all_quests.items():
-        export_quest_table(trader=trader, quests=quests)
+        if trader in traders:
+            if export:
+                export_quest_table(trader=trader, quests=quests)
+            else:
+                print(quests)
+        else:
+            continue
 
 
 def scrape_all_quest_tables():
@@ -25,16 +31,17 @@ def scrape_all_quest_tables():
     quests = {}
 
     for trader in TRADERS:
-        quests[trader] = scrape_quest_table(table=soup.find('table', class_=f'{trader}-content'))
+        quests[trader.lower()] = scrape_quest_table(trader, table=soup.find('table', class_=f'{trader}-content'))
 
     return quests
 
 
-def scrape_quest_table(table):
+def scrape_quest_table(trader, table):
     """
-    Scrapes quest name, type, objectives, and rewards from the 'Prapor' quest table
+    Scrapes quest information from the provided quest table
 
-    :param table: the 'Prapor' quest table
+    :param trader: the trader
+    :param table: the quest table
     :return: scraped info
     """
     quests = []
@@ -61,7 +68,8 @@ def scrape_quest_table(table):
                             name=quest_name,
                             objectives=quest_objectives,
                             rewards=quest_rewards,
-                            trader='prapor', type_=quest_type))
+                            trader=trader,
+                            type_=quest_type))
 
     return quests
 
