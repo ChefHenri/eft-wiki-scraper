@@ -61,7 +61,7 @@ def scrape_weapons_tables(class_, tables):
             data = row.find_all('td')
             image = row.find('th')
 
-            # TODO: trim img 'src' past '.png' ending
+            # TODO: trim 'img' source past '.png' file ending
             weapon = {
                 'desc': data[-1].text.strip(),
                 'img': {
