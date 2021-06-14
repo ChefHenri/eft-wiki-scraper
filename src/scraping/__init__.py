@@ -5,6 +5,7 @@ TRADERS = ['Prapor', 'Therapist', 'Skier', 'Peacekeeper', 'Mechanic', 'Ragman', 
 AMMO_CLASSES = ['Pistol', 'PDW', 'Rifle', 'Shotgun', 'Grenade']
 
 # Base scraping urls
+EFT_WIKI_BASE_URL = 'https://escapefromtarkov.fandom.com'
 EFT_WIKI_AMMO_BASE_URL = 'https://escapefromtarkov.fandom.com/wiki/Ammunition'
 EFT_WIKI_QUESTS_BASE_URL = 'https://escapefromtarkov.fandom.com/wiki/Quests'
 EFT_WIKI_WEAPONS_BASE_URL = 'https://escapefromtarkov.fandom.com/wiki/Weapons'

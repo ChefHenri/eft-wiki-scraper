@@ -1,14 +1,14 @@
 import bs4
 import yaml
 
-from . import AMMO_CLASSES, EFT_WIKI_AMMO_BASE_URL
+from . import AMMO_CLASSES, EFT_WIKI_BASE_URL, EFT_WIKI_AMMO_BASE_URL
 from dataclasses import dataclass
 from scraping.scraper import make_soup
 
 
 def process_all_ammunition_tables(types, export=False):
     """ Handles scraping and exporting operations for all ammunition tables """
-    pass
+    data = scrape_all_ammunition_tables()
 
 
 def scrape_all_ammunition_tables():
@@ -21,18 +21,20 @@ def scrape_all_ammunition_tables():
 
     ammunition_class_tables = soup.find_all('table', class_='wikitable')
 
-    pistol_cart_table = ammunition_class_tables[0]
-    pdw_cart_table = ammunition_class_tables[1]
-    rifle_cart_table = ammunition_class_tables[2]
-    shotgun_cart_table = ammunition_class_tables[3]
-    grenade_cart_table = ammunition_class_tables[4]
+    ammo_class_data = {}
+    ammo_type_data = {}
+
+    for class_, table in zip(AMMO_CLASSES, ammunition_class_tables):
+        ammo_data = scrape_ammunition_class_table(class_.lower(), table)
+        ammo_class_data[class_.lower()] = ammo_data['data']
+
+        for (type_, ref) in ammo_data['refs']:
+            soup = make_soup(EFT_WIKI_BASE_URL + ref)
+            scrape_ammunition_type_table(type_, soup.find('table', class_='wikitable'))
 
     return {
-        'pistol': scrape_ammunition_class_table('pistol', pistol_cart_table),
-        'pdw': scrape_ammunition_class_table('pdw', pdw_cart_table),
-        'rifle': scrape_ammunition_class_table('rifle', rifle_cart_table),
-        'shotgun': scrape_ammunition_class_table('shotgun', shotgun_cart_table),
-        'grenade': scrape_ammunition_class_table('grenade', grenade_cart_table)
+        'ammo_classes': ammo_class_data,
+        'ammo_types': ammo_type_data
     }
 
 
@@ -47,6 +49,7 @@ def scrape_ammunition_class_table(class_, table):
     rows = table.find_all('tr')
 
     ammo_types = []
+    ammo_type_refs = []
 
     for row in rows[1:]:  # skip table headers
         data = row.find_all('td')
@@ -94,8 +97,16 @@ def scrape_ammunition_class_table(class_, table):
 
         ammo_types.append(ammo_type)
 
-    print(ammo_types)
-    return ammo_types
+        # Add current cartridge type to 'ammo_type_refs' for ammo type table scraping
+        ammo_type_refs.append((
+            ammo_type['meta']['name_ref']['text'],
+            ammo_type['meta']['name_ref']['href']
+        ))
+
+    return {
+        'data': ammo_types,
+        'refs': ammo_type_refs
+    }
 
 
 def scrape_ammunition_type_table(type_, table):
@@ -106,7 +117,9 @@ def scrape_ammunition_type_table(type_, table):
     :param type_: the ammunition type
     :return: a collection of cartridges
     """
-    pass
+    # TODO: Scrape ammo type table for cartridge data
+
+    return None
 
 
 def export_ammunition_tables(class_, cartridges):

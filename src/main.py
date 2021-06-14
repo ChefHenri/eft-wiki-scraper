@@ -1,5 +1,5 @@
 from cli.parser import parse_input
-from scraping.ammunition import scrape_all_ammunition_tables
+from scraping.ammunition import process_all_ammunition_tables
 
 
 def main():
@@ -7,7 +7,8 @@ def main():
     # while cmd != 'q':
     #     parse_input(cmd.split())
     #     cmd = input('> ')
-    scrape_all_ammunition_tables()
+
+    process_all_ammunition_tables([])
 
 
 if __name__ == '__main__':
