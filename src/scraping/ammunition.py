@@ -27,7 +27,13 @@ def scrape_all_ammunition_tables():
     shotgun_cart_table = ammunition_class_tables[3]
     grenade_cart_table = ammunition_class_tables[4]
 
-    scrape_ammunition_class_table('pistol', pistol_cart_table)
+    return {
+        'pistol': scrape_ammunition_class_table('pistol', pistol_cart_table),
+        'pdw': scrape_ammunition_class_table('pdw', pdw_cart_table),
+        'rifle': scrape_ammunition_class_table('rifle', rifle_cart_table),
+        'shotgun': scrape_ammunition_class_table('shotgun', shotgun_cart_table),
+        'grenade': scrape_ammunition_class_table('grenade', grenade_cart_table)
+    }
 
 
 def scrape_ammunition_class_table(class_, table):
@@ -45,17 +51,34 @@ def scrape_ammunition_class_table(class_, table):
     for row in rows[1:]:  # skip table headers
         data = row.find_all('td')
 
-        # TODO: trim 'img' source after '.gif' file ending
         ammo_type = {
             'class': class_,
-            'img': {
-                'alt': data[0].find('img')['alt'],
-                'src': data[0].find('img')['src']
-            },
+            'img': {},
             'meta': {},
             'name': data[1].text.strip(),
-            'used_by': data[2].text.split('\n')
+            'used_by': {}
         }
+
+        # Process 'img' data
+        img = data[0].find('img')
+        ammo_type['img']['alt'] = data[0].find('img')['alt']
+        if '.png' in img['alt']:
+            ammo_type['img']['src'] = img['src'].split('.png')[0] + '.png'
+        else:
+            ammo_type['img']['src'] = img['src'].split('.gif')[0] + '.gif'
+
+        # Replace breakpoints with '\n' for simpler data extract
+        uses = [br.replace_with('\n') for br in data[2].find_all('br')]
+        uses = list(filter(None, data[2].text.split('\n')))
+        for use in uses:
+            if class_ == 'shotgun' or class_ == 'grenade':  # Parse uses for 'shotgun' and 'grenade' cartridge types
+                use_class = class_
+                use_weapons = use.split()
+            else:  # Parse uses for 'pistol', 'pdw', and 'rifle' cartridge types
+                use = use.split(':')
+                use_class = use[0].lower()
+                use_weapons = [wep.strip() for wep in use[1].split(', ')]
+            ammo_type['used_by'][use_class] = use_weapons
 
         # Set name metadata
         ammo_type['meta']['name_ref'] = {
@@ -71,6 +94,7 @@ def scrape_ammunition_class_table(class_, table):
 
         ammo_types.append(ammo_type)
 
+    print(ammo_types)
     return ammo_types
 
 
