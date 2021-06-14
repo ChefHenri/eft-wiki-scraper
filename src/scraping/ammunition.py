@@ -1,9 +1,7 @@
-import bs4
-import yaml
-
-from . import AMMO_CLASSES, EFT_WIKI_BASE_URL, EFT_WIKI_AMMO_BASE_URL
 from dataclasses import dataclass
+
 from scraping.scraper import make_soup
+from . import AMMO_CLASSES, EFT_WIKI_BASE_URL, EFT_WIKI_AMMO_BASE_URL
 
 
 def process_all_ammunition_tables(types, export=False):
