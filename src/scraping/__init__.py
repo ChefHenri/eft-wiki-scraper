@@ -1,8 +1,13 @@
 from dotenv import load_dotenv
 
-# 'Escape from Tarkov' traders
+# Quest providers/traders
 TRADERS = ['Prapor', 'Therapist', 'Skier', 'Peacekeeper', 'Mechanic', 'Ragman', 'Jaeger', 'Fence']
+
+# Ammunition classes
 AMMO_CLASSES = ['Pistol', 'PDW', 'Rifle', 'Shotgun', 'Grenade']
+
+# Pistol ammo table headers
+# PISTOL_AMMO_TABLE_HEADERS = ['']
 
 # Base scraping urls
 EFT_WIKI_BASE_URL = 'https://escapefromtarkov.fandom.com'

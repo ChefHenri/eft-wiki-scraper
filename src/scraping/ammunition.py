@@ -53,10 +53,10 @@ def scrape_ammunition_class_table(class_, table):
         data = row.find_all('td')
 
         ammo_type = {
-            'class': class_,
+            'class_': class_,
             'img': {},
             'meta': {},
-            'name': data[1].text.strip(),
+            'type_': data[1].text.strip(),
             'used_by': {}
         }
 
@@ -69,8 +69,11 @@ def scrape_ammunition_class_table(class_, table):
             ammo_type['img']['src'] = img['src'].split('.gif')[0] + '.gif'
 
         # Replace breakpoints with '\n' for simpler data extract
-        uses = [br.replace_with('\n') for br in data[2].find_all('br')]
+        [br.replace_with('\n') for br in data[2].find_all('br')]
+
+        # Filter out empty indexes
         uses = list(filter(None, data[2].text.split('\n')))
+
         for use in uses:
             if class_ == 'shotgun' or class_ == 'grenade':  # Parse uses for 'shotgun' and 'grenade' cartridge types
                 use_class = class_
@@ -93,7 +96,7 @@ def scrape_ammunition_class_table(class_, table):
             'text': a['title']
         } for a in data[2].find_all('a')]
 
-        ammo_types.append(ammo_type)
+        ammo_types.append(AmmoType(**ammo_type))
 
         # Add current cartridge type to 'ammo_type_refs' for ammo type table scraping
         ammo_type_refs.append((
@@ -111,13 +114,64 @@ def scrape_ammunition_type_table(type_, table):
     """
     Scrapes cartridge data from the provided ammunition type table
 
+    :param class_: the ammunition class
     :param table: the ammunition table
     :param type_: the ammunition type
     :return: a collection of cartridges
     """
-    # TODO: Scrape ammo type table for cartridge data
+    rows = table.find_all('tr')
 
-    return None
+    cartridges = []
+
+    if type_ == '7.62x25mm Tokarev':
+        ric_idx = 9
+        vel_idx = 6
+    else:
+        ric_idx = 6
+        vel_idx = 9
+
+    for row in rows[1:]:  # skip table headers
+        headers = row.find_all('th')
+        data = row.find_all('td')
+
+        img = headers[0].a.img
+
+        # FIXME: Shift indexes for '12.7x108mm' cart type
+        # TODO: Yield indexes (?)
+
+        cartridge = {
+            'ballistics': {
+                'acc': data[3].text.strip(),
+                'arm_dmg': int(data[2].text.strip()),
+                'dmg': int(data[0].text.strip()),
+                'frg': data[5].text.strip(),
+                'pen': int(data[1].text.strip()),
+                'rec': data[4].text.strip(),
+                'ric': data[ric_idx].text.strip(),
+                'vel': int(data[vel_idx].text.strip()),
+            },
+            'effects': {
+                'heavy': data[8].text.strip(),
+                'light': data[7].text.strip(),
+                'spc': data[10].text.strip()
+            },
+            'icon': {
+                'alt': img['alt'],
+                'src': img['src']
+            },
+            'name': {
+                'href': headers[1].a['href'],
+                'text': headers[1].a['title']
+            },
+            'sld_by': [],
+            'type_': type_
+        }
+
+        print(cartridge)
+
+        cartridges.append(Cartridge(**cartridge))
+
+    return cartridges
 
 
 def export_ammunition_tables(class_, cartridges):
@@ -135,16 +189,16 @@ def export_ammunition_tables(class_, cartridges):
 class AmmoType:
     """ Class to represent an ammunition type in 'Escape from Tarkov' """
 
-    carts: list
     class_: str
-    icon: dict
+    img: dict
+    meta: dict
     type_: str
     used_by: list
 
-    def __init__(self, carts: list, class_: str, icon: dict, type_: str, used_by: list):
-        self.carts = carts
+    def __init__(self, class_: str, img: dict, meta: dict, type_: str, used_by: list):
         self.class_ = class_
-        self.icon = icon
+        self.img = img
+        self.meta = meta
         self.type_ = type_
         self.used_by = used_by
 
@@ -154,18 +208,16 @@ class Cartridge:
     """ Class to represent a cartridge in 'Escape from Tarkov' """
 
     ballistics: dict
-    class_: str
     effects: dict
-    icon: str
-    name: str
-    sold_by: list
+    icon: dict
+    name: dict
+    sld_by: list
     type_: str
 
-    def __init__(self, ballistics: dict, class_: str, effects: dict, icon: str, name: str, sold_by: list, type_: str):
+    def __init__(self, ballistics: dict, effects: dict, icon: dict, name: dict, sld_by: list, type_: str):
         self.ballistics = ballistics
-        self.class_ = class_
         self.effects = effects
         self.icon = icon
         self.name = name
-        self.sold_by = sold_by
+        self.sld_by = sld_by
         self.type_ = type_
