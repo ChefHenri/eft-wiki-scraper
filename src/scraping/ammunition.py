@@ -6,9 +6,11 @@ from . import AMMO_CLASSES, EFT_WIKI_BASE_URL, EFT_WIKI_AMMO_BASE_URL
 
 def process_all_ammunition_tables(types, export=False):
     """ Handles scraping and exporting operations for all ammunition tables """
+
     data = scrape_all_ammunition_tables()
 
 
+# TODO: Separate ammo type refs and parse separately
 def scrape_all_ammunition_tables():
     """
     Separates ammunition tables by class and calls scraping operations
@@ -23,12 +25,13 @@ def scrape_all_ammunition_tables():
     ammo_type_data = {}
 
     for class_, table in zip(AMMO_CLASSES, ammunition_class_tables):
-        ammo_data = scrape_ammunition_class_table(class_.lower(), table)
-        ammo_class_data[class_.lower()] = ammo_data['data']
+        ammo_data = scrape_ammunition_class_table(class_, table)
+        ammo_class_data[class_] = ammo_data['data']
 
+        # FIXME: Parse type tables separately
         for (type_, ref) in ammo_data['refs']:
             soup = make_soup(EFT_WIKI_BASE_URL + ref)
-            scrape_ammunition_type_table(type_, soup.find('table', class_='wikitable'))
+            # scrape_ammunition_type_table(type_, soup.find('table', class_='wikitable'))
 
     return {
         'ammo_classes': ammo_class_data,
@@ -63,14 +66,18 @@ def scrape_ammunition_class_table(class_, table):
         # Process 'img' data
         img = data[0].find('img')
         ammo_type['img']['alt'] = data[0].find('img')['alt']
+
+        # TODO: Extract to helper func
         if '.png' in img['alt']:
             ammo_type['img']['src'] = img['src'].split('.png')[0] + '.png'
         else:
             ammo_type['img']['src'] = img['src'].split('.gif')[0] + '.gif'
 
+        # TODO: Extract to helper func
         # Replace breakpoints with '\n' for simpler data extract
         [br.replace_with('\n') for br in data[2].find_all('br')]
 
+        # TODO: Extract to helper func
         # Filter out empty indexes
         uses = list(filter(None, data[2].text.split('\n')))
 
@@ -110,68 +117,24 @@ def scrape_ammunition_class_table(class_, table):
     }
 
 
-def scrape_ammunition_type_table(type_, table):
-    """
-    Scrapes cartridge data from the provided ammunition type table
+def scrape_pistol_ammo_type_tables():
+    pass
 
-    :param class_: the ammunition class
-    :param table: the ammunition table
-    :param type_: the ammunition type
-    :return: a collection of cartridges
-    """
-    rows = table.find_all('tr')
 
-    cartridges = []
+def scrape_pdw_ammo_type_tables():
+    pass
 
-    if type_ == '7.62x25mm Tokarev':
-        ric_idx = 9
-        vel_idx = 6
-    else:
-        ric_idx = 6
-        vel_idx = 9
 
-    for row in rows[1:]:  # skip table headers
-        headers = row.find_all('th')
-        data = row.find_all('td')
+def scrape_rifle_ammo_type_tables():
+    pass
 
-        img = headers[0].a.img
 
-        # FIXME: Shift indexes for '12.7x108mm' cart type
-        # TODO: Yield indexes (?)
+def scrape_shotgun_ammo_type_tables():
+    pass
 
-        cartridge = {
-            'ballistics': {
-                'acc': data[3].text.strip(),
-                'arm_dmg': int(data[2].text.strip()),
-                'dmg': int(data[0].text.strip()),
-                'frg': data[5].text.strip(),
-                'pen': int(data[1].text.strip()),
-                'rec': data[4].text.strip(),
-                'ric': data[ric_idx].text.strip(),
-                'vel': int(data[vel_idx].text.strip()),
-            },
-            'effects': {
-                'heavy': data[8].text.strip(),
-                'light': data[7].text.strip(),
-                'spc': data[10].text.strip()
-            },
-            'icon': {
-                'alt': img['alt'],
-                'src': img['src']
-            },
-            'name': {
-                'href': headers[1].a['href'],
-                'text': headers[1].a['title']
-            },
-            'sld_by': [],
-            'type_': type_
-        }
 
-        print(cartridge)
-
-        cartridges.append(Cartridge(**cartridge))
-
-    return cartridges
+def scrape_grenade_ammo_type_tables():
+    pass
 
 
 def export_ammunition_tables(class_, cartridges):
@@ -207,17 +170,38 @@ class AmmoType:
 class Cartridge:
     """ Class to represent a cartridge in 'Escape from Tarkov' """
 
-    ballistics: dict
-    effects: dict
     icon: dict
     name: dict
     sld_by: list
     type_: str
 
-    def __init__(self, ballistics: dict, effects: dict, icon: dict, name: dict, sld_by: list, type_: str):
-        self.ballistics = ballistics
-        self.effects = effects
+    def __init__(self, icon: dict, name: dict, sld_by: list, type_: str):
         self.icon = icon
         self.name = name
         self.sld_by = sld_by
         self.type_ = type_
+
+
+@dataclass
+class PistolCartridge(Cartridge):
+    pass
+
+
+@dataclass
+class PDWCartridge(Cartridge):
+    pass
+
+
+@dataclass
+class RifleCartridge(Cartridge):
+    pass
+
+
+@dataclass
+class ShotgunCartridge(Cartridge):
+    pass
+
+
+@dataclass
+class GrenadeCartridge(Cartridge):
+    pass

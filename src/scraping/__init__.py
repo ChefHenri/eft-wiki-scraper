@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 TRADERS = ['Prapor', 'Therapist', 'Skier', 'Peacekeeper', 'Mechanic', 'Ragman', 'Jaeger', 'Fence']
 
 # Ammunition classes
-AMMO_CLASSES = ['Pistol', 'PDW', 'Rifle', 'Shotgun', 'Grenade']
+AMMO_CLASSES = ['pistol', 'pdw', 'rifle', 'shotgun', 'grenade']
 
 # Pistol ammo table headers
 # PISTOL_AMMO_TABLE_HEADERS = ['']
