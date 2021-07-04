@@ -1,7 +1,7 @@
 from argparse import ArgumentParser
 from scraping.quests import scrape_all_quest_tables, process_all_quest_tables
 
-QUEST_TRADERS = ['prapor', 'therapist', 'fence', 'skier', 'peacekeeper', 'mechanic', 'ragman', 'jaeger']
+QUEST_TRADERS = ['all', 'prapor', 'therapist', 'fence', 'skier', 'peacekeeper', 'mechanic', 'ragman', 'jaeger']
 WEAPON_CLASSES = ['all', 'primary', 'secondary', 'stationary', 'melee', 'throwable']
 
 parser = ArgumentParser(description='handle scraping and exporting operations')

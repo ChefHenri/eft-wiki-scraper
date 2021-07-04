@@ -11,13 +11,13 @@ def process_all_quest_tables(traders, export=False):
     all_quests = scrape_all_quest_tables()
 
     for trader, quests in all_quests.items():
-        if trader in traders:
-            if export:
-                export_quest_table(trader=trader, quests=quests)
-            else:
-                print(quests)
+        if 'all' in traders:
+            export_quest_table(trader, quests) if export else print_quest_table(trader, quests)
         else:
-            continue
+            if trader in traders:
+                export_quest_table(trader, quests) if export else print_quest_table(trader, quests)
+            else:
+                continue
 
 
 def scrape_all_quest_tables():
@@ -84,6 +84,10 @@ def export_quest_table(trader, quests):
     """
     with open(path.join(environ.get(QUEST_OUT_DIR_ENV_KEY), f'{trader.lower()}-quests.yml'), 'w') as out_file:
         yaml.dump(quests, out_file, default_flow_style=False)
+
+
+def print_quest_table(trader, quests):
+    print(f"Trader: {trader}\nQuests: {quests}\n")
 
 
 @dataclass
